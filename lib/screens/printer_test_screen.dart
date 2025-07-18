@@ -28,8 +28,8 @@ class _PrinterTestScreenState extends State<PrinterTestScreen> {
   Future<void> _pickPdf() async {
     try {
       final result = await FilePicker.platform.pickFiles(type: FileType.custom, allowedExtensions: ['pdf']);
-      if (result != null && result.files.single.bytes != null) {
-        Uint8List fileBytes = result.files.single.bytes!;
+      if (result != null && result.files.single.path != null) {
+        Uint8List? fileBytes = result.files.single.bytes ?? await File(result.files.single.path!).readAsBytes();
         setState(() {
           _selectedFilePath = result.files.single.name;
           _pdfData = fileBytes;
