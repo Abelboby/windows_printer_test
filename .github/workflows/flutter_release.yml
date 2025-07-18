@@ -46,12 +46,15 @@ jobs:
           git tag $newTag
           git push origin $newTag
 
-      - name: Create Release and Upload .exe
+      - name: Zip Release folder
+        run: Compress-Archive -Path build/windows/x64/runner/Release/* -DestinationPath build/windows/x64/runner/Release/release_build.zip
+
+      - name: Create Release and Upload zip
         uses: softprops/action-gh-release@v2
         with:
           tag_name: ${{ env.NEW_TAG }}
           name: Release ${{ env.NEW_TAG }}
           body: "Automated Windows release for ${{ env.NEW_TAG }}\nCommit: ${{ github.sha }}"
-          files: ${{ env.EXE_PATH }}
+          files: build/windows/x64/runner/Release/release_build.zip
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
