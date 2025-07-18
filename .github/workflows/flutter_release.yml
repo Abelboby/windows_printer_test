@@ -28,7 +28,7 @@ jobs:
       - name: Find .exe path
         id: find_exe
         run: |
-          $exe = Get-ChildItem -Path build/windows/runner/Release -Filter *.exe | Select-Object -First 1
+          $exe = Get-ChildItem -Path build/windows/x64/runner/Release -Filter *.exe | Select-Object -First 1
           echo "EXE_PATH=$($exe.FullName)" | Out-File -FilePath $env:GITHUB_ENV -Append
 
       - name: Create Release and Upload .exe
