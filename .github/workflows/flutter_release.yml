@@ -3,8 +3,6 @@ name: Flutter Windows Release
 on:
   push:
     branches: [main]
-  pull_request:
-    branches: [main]
 
 jobs:
   build-and-release:
@@ -39,4 +37,4 @@ jobs:
           body: "Automated Windows release for commit ${{ github.sha }}"
           files: ${{ env.EXE_PATH }}
         env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GITHUB_TOKEN: ${{ secrets.GH_PAT }}
