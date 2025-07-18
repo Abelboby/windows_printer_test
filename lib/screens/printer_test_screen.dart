@@ -2,6 +2,7 @@ import 'dart:typed_data';
 import 'package:flutter/material.dart';
 import 'package:file_picker/file_picker.dart';
 import '../services/printer_service.dart';
+import 'dart:io';
 
 class PrinterTestScreen extends StatefulWidget {
   const PrinterTestScreen({super.key});
@@ -27,15 +28,15 @@ class _PrinterTestScreenState extends State<PrinterTestScreen> {
   Future<void> _pickPdf() async {
     try {
       final result = await FilePicker.platform.pickFiles(type: FileType.custom, allowedExtensions: ['pdf']);
-      if (result != null && result.files.single.path != null) {
-        Uint8List? fileBytes = result.files.single.bytes ?? await File(result.files.single.path!).readAsBytes();
+      if (result != null && result.files.single.bytes != null) {
+        Uint8List fileBytes = result.files.single.bytes!;
         setState(() {
-          _selectedFilePath = result.files.single.path;
+          _selectedFilePath = result.files.single.name;
           _pdfData = fileBytes;
         });
         _log('PDF selected: $_selectedFilePath');
       } else {
-        _log('PDF selection cancelled.');
+        _log('PDF selection cancelled or file bytes unavailable.');
       }
     } catch (e) {
       _log('Error picking PDF: $e');
