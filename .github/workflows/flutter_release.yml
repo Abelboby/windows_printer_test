@@ -21,7 +21,7 @@ jobs:
         run: flutter pub get
 
       - name: Build Windows app
-        run: flutter build windows
+        run: flutter build windows --release
 
       - name: Find .exe path
         id: find_exe
@@ -29,12 +29,29 @@ jobs:
           $exe = Get-ChildItem -Path build/windows/x64/runner/Release -Filter *.exe | Select-Object -First 1
           echo "EXE_PATH=$($exe.FullName)" | Out-File -FilePath $env:GITHUB_ENV -Append
 
+      - name: Get latest tag and bump
+        id: bump_tag
+        shell: pwsh
+        run: |
+          git fetch --tags
+          $latestTag = git tag --list "v1.0.0+*" | Sort-Object -Descending | Select-Object -First 1
+          if ($latestTag) {
+            $buildNum = [int]($latestTag -replace 'v1\.0\.0\+', '')
+            $newBuildNum = $buildNum + 1
+          } else {
+            $newBuildNum = 1
+          }
+          $newTag = "v1.0.0+$newBuildNum"
+          echo "NEW_TAG=$newTag" | Out-File -FilePath $env:GITHUB_ENV -Append
+          git tag $newTag
+          git push origin $newTag
+
       - name: Create Release and Upload .exe
         uses: softprops/action-gh-release@v2
         with:
-          tag_name: ${{ github.sha }}
-          name: Release ${{ github.sha }}
-          body: "Automated Windows release for commit ${{ github.sha }}"
+          tag_name: ${{ env.NEW_TAG }}
+          name: Release ${{ env.NEW_TAG }}
+          body: "Automated Windows release for ${{ env.NEW_TAG }}\nCommit: ${{ github.sha }}"
           files: ${{ env.EXE_PATH }}
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
