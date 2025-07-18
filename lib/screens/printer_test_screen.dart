@@ -2,7 +2,6 @@ import 'dart:typed_data';
 import 'package:flutter/material.dart';
 import 'package:file_picker/file_picker.dart';
 import '../services/printer_service.dart';
-import 'dart:io'; // Add this import at the top
 
 class PrinterTestScreen extends StatefulWidget {
   const PrinterTestScreen({super.key});
@@ -149,101 +148,163 @@ class _PrinterTestScreenState extends State<PrinterTestScreen> {
     }
   }
 
+  Widget _buildActionButton({required IconData icon, required String label, required VoidCallback? onPressed}) {
+    return SizedBox(
+      width: 170,
+      height: 44,
+      child: ElevatedButton.icon(
+        onPressed: onPressed,
+        icon: Icon(icon, color: Colors.black),
+        label: Text(label, style: const TextStyle(color: Colors.black)),
+        style: ElevatedButton.styleFrom(
+          backgroundColor: Colors.white,
+          foregroundColor: Colors.black,
+          elevation: 1,
+          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+        ),
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context);
     return Scaffold(
-      appBar: AppBar(title: const Text('Windows Printer Test')),
-      body: Column(
-        children: [
-          Padding(
-            padding: const EdgeInsets.all(8.0),
-            child: Row(
-              children: [
-                ElevatedButton(
-                  onPressed: _isBusy ? null : _pickPdf,
-                  child: const Text('Pick PDF'),
-                ),
-                const SizedBox(width: 8),
-                ElevatedButton(
-                  onPressed: _isBusy ? null : _getPrinters,
-                  child: const Text('Get Printers'),
-                ),
-                const SizedBox(width: 8),
-                Expanded(
-                  child: DropdownButton<String>(
-                    isExpanded: true,
-                    value: _selectedPrinter,
-                    hint: const Text('Select Printer'),
-                    items: _printers
-                        .map((printer) => DropdownMenuItem(
-                              value: printer,
-                              child: Text(printer),
-                            ))
-                        .toList(),
-                    onChanged: _isBusy ? null : (val) => setState(() => _selectedPrinter = val),
-                  ),
-                ),
-              ],
-            ),
-          ),
-          Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 8.0),
-            child: Row(
-              children: [
-                ElevatedButton(
-                  onPressed: _isBusy ? null : _printPdf,
-                  child: const Text('Print PDF'),
-                ),
-                const SizedBox(width: 8),
-                ElevatedButton(
-                  onPressed: _isBusy ? null : _printRichText,
-                  child: const Text('Print Rich Text'),
-                ),
-                const SizedBox(width: 8),
-                ElevatedButton(
-                  onPressed: _isBusy ? null : _printRawData,
-                  child: const Text('Print Raw Data'),
-                ),
-                const SizedBox(width: 8),
-                ElevatedButton(
-                  onPressed: _isBusy ? null : _setDefaultPrinter,
-                  child: const Text('Set Default'),
-                ),
-                const SizedBox(width: 8),
-                ElevatedButton(
-                  onPressed: _isBusy ? null : _openPrinterProperties,
-                  child: const Text('Properties'),
-                ),
-              ],
-            ),
-          ),
-          if (_selectedFilePath != null)
-            Padding(
-              padding: const EdgeInsets.all(8.0),
-              child: Text('Selected PDF: $_selectedFilePath'),
-            ),
-          const Divider(),
-          const Padding(
-            padding: EdgeInsets.all(8.0),
-            child: Text('Logger', style: TextStyle(fontWeight: FontWeight.bold)),
-          ),
-          Expanded(
-            child: Container(
-              color: Colors.black,
-              child: ListView.builder(
-                reverse: true,
-                itemCount: _logs.length,
-                itemBuilder: (context, index) => Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
-                  child: Text(
-                    _logs[index],
-                    style: const TextStyle(color: Colors.greenAccent, fontFamily: 'monospace'),
-                  ),
+      backgroundColor: Colors.white,
+      appBar: AppBar(
+        title:
+            const Text('🖨️ Windows Printer Test', style: TextStyle(fontWeight: FontWeight.bold, color: Colors.black)),
+        backgroundColor: Colors.white,
+        elevation: 2,
+        iconTheme: const IconThemeData(color: Colors.black),
+      ),
+      body: Padding(
+        padding: const EdgeInsets.all(16.0),
+        child: Column(
+          children: [
+            Card(
+              elevation: 2,
+              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+              color: Colors.grey[50],
+              child: Padding(
+                padding: const EdgeInsets.all(16.0),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Row(
+                      children: [
+                        _buildActionButton(
+                            icon: Icons.picture_as_pdf, label: 'Pick PDF', onPressed: _isBusy ? null : _pickPdf),
+                        const SizedBox(width: 12),
+                        _buildActionButton(
+                            icon: Icons.print, label: 'Get Printers', onPressed: _isBusy ? null : _getPrinters),
+                        const SizedBox(width: 12),
+                        Expanded(
+                          child: DropdownButtonFormField<String>(
+                            isExpanded: true,
+                            value: _selectedPrinter,
+                            decoration: const InputDecoration(
+                              labelText: 'Select Printer',
+                              border: OutlineInputBorder(),
+                              contentPadding: EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+                            ),
+                            items: _printers
+                                .map((printer) => DropdownMenuItem(
+                                      value: printer,
+                                      child: Text(printer, style: const TextStyle(color: Colors.black)),
+                                    ))
+                                .toList(),
+                            onChanged: _isBusy
+                                ? null
+                                : (val) {
+                                    setState(() => _selectedPrinter = val);
+                                    if (val != null) {
+                                      _log('Printer selected: $val');
+                                    }
+                                  },
+                          ),
+                        ),
+                      ],
+                    ),
+                    if (_selectedFilePath != null)
+                      Padding(
+                        padding: const EdgeInsets.only(top: 12.0),
+                        child: Text(
+                          'Selected PDF: $_selectedFilePath',
+                          style:
+                              theme.textTheme.bodyMedium?.copyWith(fontWeight: FontWeight.w500, color: Colors.black87),
+                        ),
+                      ),
+                  ],
                 ),
               ),
             ),
-          ),
-        ],
+            const SizedBox(height: 20),
+            Card(
+              elevation: 2,
+              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+              color: Colors.grey[50],
+              child: Padding(
+                padding: const EdgeInsets.symmetric(vertical: 24.0, horizontal: 8.0),
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    _buildActionButton(
+                        icon: Icons.picture_as_pdf, label: 'Print PDF', onPressed: _isBusy ? null : _printPdf),
+                    const SizedBox(width: 16),
+                    _buildActionButton(
+                        icon: Icons.text_fields, label: 'Print Rich Text', onPressed: _isBusy ? null : _printRichText),
+                    const SizedBox(width: 16),
+                    _buildActionButton(
+                        icon: Icons.code, label: 'Print Raw Data', onPressed: _isBusy ? null : _printRawData),
+                    const SizedBox(width: 16),
+                    _buildActionButton(
+                        icon: Icons.star, label: 'Set Default', onPressed: _isBusy ? null : _setDefaultPrinter),
+                    const SizedBox(width: 16),
+                    _buildActionButton(
+                        icon: Icons.settings, label: 'Properties', onPressed: _isBusy ? null : _openPrinterProperties),
+                  ],
+                ),
+              ),
+            ),
+            const SizedBox(height: 20),
+            Card(
+              elevation: 1,
+              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+              color: Colors.grey[50],
+              child: Padding(
+                padding: const EdgeInsets.all(12.0),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    const Text('Logger',
+                        style: TextStyle(fontWeight: FontWeight.bold, fontSize: 18, color: Colors.black)),
+                    const SizedBox(height: 8),
+                    Container(
+                      height: 180,
+                      decoration: BoxDecoration(
+                        color: Colors.black,
+                        borderRadius: BorderRadius.circular(8),
+                      ),
+                      child: ListView.builder(
+                        reverse: true,
+                        itemCount: _logs.length,
+                        itemBuilder: (context, index) => Padding(
+                          padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
+                          child: Text(
+                            _logs[index],
+                            style:
+                                const TextStyle(color: Colors.white, fontFamily: 'Fira Mono, monospace', fontSize: 14),
+                          ),
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ),
+          ],
+        ),
       ),
     );
   }
