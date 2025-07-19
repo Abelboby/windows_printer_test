@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:file_picker/file_picker.dart';
 import 'screens/printer_test_screen.dart';
 import 'screens/printer_usb_screen.dart';
+import 'screens/silent_print_screen.dart';
 import 'services/pdf_picker_service.dart';
 
 void main() {
@@ -60,6 +61,7 @@ class _PrinterHomeScreenState extends State<PrinterHomeScreen> {
         selectedPdfName: _selectedPdfName,
         selectedPdfBytes: _selectedPdfBytes,
       ),
+      const SilentPrintScreen(),
     ];
     return Scaffold(
       body: Row(
@@ -83,6 +85,11 @@ class _PrinterHomeScreenState extends State<PrinterHomeScreen> {
                 icon: Icon(Icons.usb, color: Colors.black),
                 selectedIcon: Icon(Icons.usb, color: Colors.black),
                 label: Text('USB Printer', style: TextStyle(color: Colors.black)),
+              ),
+              NavigationRailDestination(
+                icon: Icon(Icons.print_outlined, color: Colors.black),
+                selectedIcon: Icon(Icons.print_outlined, color: Colors.black),
+                label: Text('Silent Print', style: TextStyle(color: Colors.black)),
               ),
             ],
           ),
