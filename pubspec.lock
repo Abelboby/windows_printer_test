@@ -304,6 +304,14 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "6.0.3"
+  print_usb:
+    dependency: "direct main"
+    description:
+      name: print_usb
+      sha256: b7ed72bac11bb734ee1e829ffbc3c6dfaea987304fc9771b6420ee9f3e0eeefb
+      url: "https://pub.dev"
+    source: hosted
+    version: "0.0.3"
   qr:
     dependency: transitive
     description:

@@ -39,6 +39,7 @@ dependencies:
   path: ^1.9.0
   windows_printer: ^0.2.1
   file_picker: ^6.1.1
+  print_usb: ^0.0.3
 
 dev_dependencies:
   flutter_test:
