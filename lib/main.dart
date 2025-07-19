@@ -1,9 +1,10 @@
-import 'dart:io';
 import 'dart:typed_data';
+import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:file_picker/file_picker.dart';
 import 'screens/printer_test_screen.dart';
 import 'screens/printer_usb_screen.dart';
+import 'services/pdf_picker_service.dart';
 
 void main() {
   runApp(const PrinterApp());
@@ -39,17 +40,12 @@ class _PrinterHomeScreenState extends State<PrinterHomeScreen> {
   Uint8List? _selectedPdfBytes;
 
   Future<void> _pickPdf() async {
-    try {
-      final result = await FilePicker.platform.pickFiles(type: FileType.custom, allowedExtensions: ['pdf']);
-      if (result != null && result.files.single.path != null) {
-        Uint8List? fileBytes = result.files.single.bytes ?? await File(result.files.single.path!).readAsBytes();
-        setState(() {
-          _selectedPdfName = result.files.single.name;
-          _selectedPdfBytes = fileBytes;
-        });
-      }
-    } catch (e) {
-      // Optionally show error
+    final result = await PdfPickerService.pickPdf();
+    if (result != null) {
+      setState(() {
+        _selectedPdfName = result['name'] as String?;
+        _selectedPdfBytes = result['bytes'] as Uint8List?;
+      });
     }
   }
 

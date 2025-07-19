@@ -132,7 +132,7 @@ class _PrinterTestScreenState extends State<PrinterTestScreen> {
 
   Widget _buildActionButton({required IconData icon, required String label, required VoidCallback? onPressed}) {
     return SizedBox(
-      width: 170,
+      width: 150,
       height: 44,
       child: ElevatedButton.icon(
         onPressed: onPressed,
@@ -161,49 +161,25 @@ class _PrinterTestScreenState extends State<PrinterTestScreen> {
             color: Colors.grey[50],
             child: Padding(
               padding: const EdgeInsets.all(16.0),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
+              child: Row(
                 children: [
-                  Row(
-                    children: [
-                      _buildActionButton(
-                          icon: Icons.print, label: 'Get Printers', onPressed: _isBusy ? null : _getPrinters),
-                      const SizedBox(width: 12),
-                      Expanded(
-                        child: DropdownButtonFormField<String>(
-                          isExpanded: true,
-                          value: _selectedPrinter,
-                          decoration: const InputDecoration(
-                            labelText: 'Select Printer',
-                            border: OutlineInputBorder(),
-                            contentPadding: EdgeInsets.symmetric(horizontal: 12, vertical: 8),
-                          ),
-                          items: _printers
-                              .map((printer) => DropdownMenuItem(
-                                    value: printer,
-                                    child: Text(printer, style: const TextStyle(color: Colors.black)),
-                                  ))
-                              .toList(),
-                          onChanged: _isBusy
-                              ? null
-                              : (val) {
-                                  setState(() => _selectedPrinter = val);
-                                  if (val != null) {
-                                    _log('Printer selected: $val');
-                                  }
-                                },
-                        ),
-                      ),
-                    ],
-                  ),
-                  if (widget.selectedPdfName != null)
-                    Padding(
-                      padding: const EdgeInsets.only(top: 12.0),
-                      child: Text(
-                        'Selected PDF: ${widget.selectedPdfName}',
-                        style: theme.textTheme.bodyMedium?.copyWith(fontWeight: FontWeight.w500, color: Colors.black87),
-                      ),
-                    ),
+                  _buildActionButton(
+                      icon: Icons.print, label: 'Get Printers', onPressed: _isBusy ? null : _getPrinters),
+                  const SizedBox(width: 12),
+                  _buildActionButton(
+                      icon: Icons.picture_as_pdf, label: 'Print PDF', onPressed: _isBusy ? null : _printPdf),
+                  const SizedBox(width: 12),
+                  _buildActionButton(
+                      icon: Icons.text_fields, label: 'Print Rich Text', onPressed: _isBusy ? null : _printRichText),
+                  const SizedBox(width: 12),
+                  _buildActionButton(
+                      icon: Icons.code, label: 'Print Raw Data', onPressed: _isBusy ? null : _printRawData),
+                  const SizedBox(width: 12),
+                  _buildActionButton(
+                      icon: Icons.star, label: 'Set Default', onPressed: _isBusy ? null : _setDefaultPrinter),
+                  const SizedBox(width: 12),
+                  _buildActionButton(
+                      icon: Icons.settings, label: 'Properties', onPressed: _isBusy ? null : _openPrinterProperties),
                 ],
               ),
             ),
@@ -214,24 +190,36 @@ class _PrinterTestScreenState extends State<PrinterTestScreen> {
             shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
             color: Colors.grey[50],
             child: Padding(
-              padding: const EdgeInsets.symmetric(vertical: 24.0, horizontal: 8.0),
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.center,
+              padding: const EdgeInsets.all(12.0),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  _buildActionButton(
-                      icon: Icons.picture_as_pdf, label: 'Print PDF', onPressed: _isBusy ? null : _printPdf),
-                  const SizedBox(width: 16),
-                  _buildActionButton(
-                      icon: Icons.text_fields, label: 'Print Rich Text', onPressed: _isBusy ? null : _printRichText),
-                  const SizedBox(width: 16),
-                  _buildActionButton(
-                      icon: Icons.code, label: 'Print Raw Data', onPressed: _isBusy ? null : _printRawData),
-                  const SizedBox(width: 16),
-                  _buildActionButton(
-                      icon: Icons.star, label: 'Set Default', onPressed: _isBusy ? null : _setDefaultPrinter),
-                  const SizedBox(width: 16),
-                  _buildActionButton(
-                      icon: Icons.settings, label: 'Properties', onPressed: _isBusy ? null : _openPrinterProperties),
+                  const Text('Printers',
+                      style: TextStyle(fontWeight: FontWeight.bold, fontSize: 18, color: Colors.black)),
+                  const SizedBox(height: 8),
+                  SizedBox(
+                    height: 120,
+                    child: ListView.builder(
+                      itemCount: _printers.length,
+                      itemBuilder: (context, index) {
+                        final printer = _printers[index];
+                        final isSelected = _selectedPrinter == printer;
+                        return Card(
+                          color: isSelected ? Colors.black12 : Colors.white,
+                          child: ListTile(
+                            title: Text(printer, style: const TextStyle(color: Colors.black)),
+                            trailing: isSelected ? const Icon(Icons.check, color: Colors.black) : null,
+                            onTap: _isBusy
+                                ? null
+                                : () {
+                                    setState(() => _selectedPrinter = printer);
+                                    _log('Printer selected: $printer');
+                                  },
+                          ),
+                        );
+                      },
+                    ),
+                  ),
                 ],
               ),
             ),
@@ -250,7 +238,7 @@ class _PrinterTestScreenState extends State<PrinterTestScreen> {
                       style: TextStyle(fontWeight: FontWeight.bold, fontSize: 18, color: Colors.black)),
                   const SizedBox(height: 8),
                   Container(
-                    height: 180,
+                    height: 120,
                     decoration: BoxDecoration(
                       color: Colors.black,
                       borderRadius: BorderRadius.circular(8),
