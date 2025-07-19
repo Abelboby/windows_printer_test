@@ -5,6 +5,7 @@ import 'package:file_picker/file_picker.dart';
 import 'screens/printer_test_screen.dart';
 import 'screens/printer_usb_screen.dart';
 import 'screens/silent_print_screen.dart';
+import 'screens/pdf_to_printer_screen.dart';
 import 'services/pdf_picker_service.dart';
 
 void main() {
@@ -62,6 +63,7 @@ class _PrinterHomeScreenState extends State<PrinterHomeScreen> {
         selectedPdfBytes: _selectedPdfBytes,
       ),
       const SilentPrintScreen(),
+      const PdfToPrinterScreen(),
     ];
     return Scaffold(
       body: Row(
@@ -91,6 +93,11 @@ class _PrinterHomeScreenState extends State<PrinterHomeScreen> {
                 selectedIcon: Icon(Icons.print_outlined, color: Colors.black),
                 label: Text('Silent Print', style: TextStyle(color: Colors.black)),
               ),
+              NavigationRailDestination(
+                icon: Icon(Icons.picture_as_pdf, color: Colors.black),
+                selectedIcon: Icon(Icons.picture_as_pdf, color: Colors.black),
+                label: Text('PDFtoPrinter', style: TextStyle(color: Colors.black)),
+              ),
             ],
           ),
           const VerticalDivider(width: 1, thickness: 1),
@@ -102,7 +109,13 @@ class _PrinterHomeScreenState extends State<PrinterHomeScreen> {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text(
-                      _selectedIndex == 0 ? '🖨️ Windows Printer' : 'USB Printer',
+                      _selectedIndex == 0
+                          ? '🖨️ Windows Printer'
+                          : _selectedIndex == 1
+                              ? 'USB Printer'
+                              : _selectedIndex == 2
+                                  ? 'Silent Print'
+                                  : 'PDFtoPrinter',
                       style: const TextStyle(fontWeight: FontWeight.bold, color: Colors.black),
                     ),
                     if (_selectedPdfName != null)
