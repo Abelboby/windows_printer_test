@@ -40,11 +40,46 @@ class _PdfToPrinterScreenState extends State<PdfToPrinterScreen> {
       _log = null;
     });
     try {
-      final exePath = File('windows/runner/resources/PDFtoPrinter.exe').absolute.path;
+      // Debug: Print current directory
+      print('Current directory: ${Directory.current.path}');
+
+      // For development and release builds, try these paths
+      final possiblePaths = [
+        'assets/PDFtoPrinter.exe',
+        'data/flutter_assets/assets/PDFtoPrinter.exe',
+        'flutter_assets/assets/PDFtoPrinter.exe',
+        'PDFtoPrinter.exe',
+        'windows/runner/resources/PDFtoPrinter.exe',
+      ];
+
+      String? exePath;
+      for (final path in possiblePaths) {
+        final file = File(path);
+        print('Checking path: ${file.absolute.path}');
+        if (await file.exists()) {
+          exePath = file.absolute.path;
+          print('Found PDFtoPrinter.exe at: $exePath');
+          break;
+        } else {
+          print('File not found at: ${file.absolute.path}');
+        }
+      }
+
+      if (exePath == null) {
+        // List all files in current directory for debugging
+        final currentDir = Directory.current;
+        print('Files in current directory:');
+        await for (final entity in currentDir.list()) {
+          print('  ${entity.path}');
+        }
+        throw Exception('PDFtoPrinter.exe not found. Tried paths: ${possiblePaths.join(', ')}');
+      }
+
       final args = [
         _pdfPath!,
         _selectedPrinter!,
       ];
+      print('Running: $exePath ${args.join(' ')}');
       final result = await Process.run(exePath, args, runInShell: true);
       if (result.exitCode == 0) {
         setState(() {
