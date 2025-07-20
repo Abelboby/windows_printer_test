@@ -45,11 +45,10 @@ class _PdfToPrinterScreenState extends State<PdfToPrinterScreen> {
 
       // For development and release builds, try these paths
       final possiblePaths = [
-        'assets/PDFtoPrinter.exe',
-        'data/flutter_assets/assets/PDFtoPrinter.exe',
-        'flutter_assets/assets/PDFtoPrinter.exe',
         'PDFtoPrinter.exe',
-        'windows/runner/resources/PDFtoPrinter.exe',
+        'assets/PDFtoPrinter.exe',
+        'flutter_assets/assets/PDFtoPrinter.exe',
+        'data/flutter_assets/assets/PDFtoPrinter.exe',
       ];
 
       String? exePath;
@@ -75,12 +74,11 @@ class _PdfToPrinterScreenState extends State<PdfToPrinterScreen> {
         throw Exception('PDFtoPrinter.exe not found. Tried paths: ${possiblePaths.join(', ')}');
       }
 
-      final args = [
-        _pdfPath!,
-        _selectedPrinter!,
-      ];
-      print('Running: $exePath ${args.join(' ')}');
-      final result = await Process.run(exePath, args, runInShell: true);
+      // Ensure exePath is absolute
+      final exeFile = File(exePath!);
+      final absExePath = exeFile.absolute.path;
+      print('Running: $absExePath [${_pdfPath!}, ${_selectedPrinter!}]');
+      final result = await Process.run(absExePath, [_pdfPath!, _selectedPrinter!]);
       if (result.exitCode == 0) {
         setState(() {
           _log = '✅ Print command sent successfully.';
